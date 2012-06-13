@@ -10,8 +10,6 @@ $dirname = dirname(__FILE__);
 require $dirname."/lib/lbc.php";
 require $dirname."/ConfigManager.php";
 
-$config = ConfigManager::load();
-
 $view = "list-alerts";
 if (isset($_GET["a"])) {
     $view = $_GET["a"];
@@ -34,12 +32,8 @@ $content = ob_get_clean();
         <title>Alerte mail pour Leboncoin.fr</title>
         <meta charset="utf-8">
         <style type="text/css">
-            body {
-                width: 600px;
-            }
             table {
                 border: 1px solid #CCCCCC;
-                width: 500px;
                 border-collapse: collapse;
             }
             table td, table th {

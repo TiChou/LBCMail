@@ -1,28 +1,41 @@
 <?php
+if (isset($_GET["id"])) {
+    $alert = ConfigManager::getAlertById($_GET["id"]);
+}
+if (empty($alert)) {
+    $alert = new Alert();
+}
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $alert = array_merge(array("email" => "", "title" => "",
-        "url" => "", "interval" => 30), $_POST);
-    $alert["interval"] = (int)$alert["interval"];
-    if (empty($alert["email"])) {
+    $alert->fromArray(array_map("trim", $_POST));
+    if (empty($alert->email)) {
         $errors["email"] = "Ce champ est obligatoire.";
     }
-    if (empty($alert["url"])) {
+    if (empty($alert->url)) {
         $errors["url"] = "Ce champ est obligatoire.";
     }
-    try {
-        $alert["url"] = Lbc::formatUrl($alert["url"]);
-    } catch (Exception $e) {
-        $errors["url"] = "Cette adresse ne semble pas valide.";
+    if (empty($alert->price_min)) {
+        $alert->price_min = -1;
     }
-    if (empty($alert["interval"])) {
-        $errors["interval"] = "Ce champ est obligatoire.";
+    if (empty($alert->price_max)) {
+        $alert->price_max = -1;
+    }
+    if ($alert->price_min != (int)$alert->price_min) {
+        $errors["price"] = "Valeur de \"prix min\" non valide. ";
+    }
+    if ($alert->price_max != (int)$alert->price_max) {
+        $errors["price"] .= "Valeur de \"prix max\" non valide.";
+    }
+    try {
+        $alert->url = Lbc::formatUrl($alert->url);
+    } catch (Exception $e) {
+        $errors->url = "Cette adresse ne semble pas valide.";
+    }
+    $alert->interval = (int)$alert->interval;
+    if ($alert->interval != (int)$alert->interval || $alert->interval < 0) {
+        $errors["interval"] = "Cette valeur n'est valide.";
     }
     if (empty($errors)) {
-        $alert["id"] = md5(uniqid());
-        $iAlert = new Alert();
-        $iAlert->fromArray($alert);
-        $config[] = $iAlert;
-        ConfigManager::save($config);
+        ConfigManager::saveAlert($alert);
         header("LOCATION: ./"); exit;
     }
 }
@@ -36,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </dt>
             <dd>
                 <input type="text" id="email" name="email" value="<?php
-                    echo isset($alert["email"])?htmlspecialchars($alert["email"]):"";
+                    echo htmlspecialchars($alert->email);
                 ?>" size="30" />
                 <?php if (isset($errors["email"])) : ?>
                 <p class="error"><?php echo $errors["email"]; ?></p>
@@ -47,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </dt>
             <dd>
                 <input type="text" id="title" name="title" value="<?php
-                    echo isset($alert["title"])?htmlspecialchars($alert["title"]):"";
+                    echo htmlspecialchars($alert->title);
                 ?>" />
                 <?php if (isset($errors["title"])) : ?>
                 <p class="error"><?php echo $errors["title"]; ?></p>
@@ -58,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </dt>
             <dd>
                 <input type="text" id="url" name="url" value="<?php
-                    echo isset($alert["url"])?htmlspecialchars($alert["url"]):"";
+                    echo htmlspecialchars($alert->url);
                 ?>" size="50" />
                 <?php if (isset($errors["url"])) : ?>
                 <p class="error"><?php echo $errors["url"]; ?></p>
@@ -69,11 +82,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </dt>
             <dd>
                 <input type="text" id="interval" name="interval" value="<?php
-                    echo isset($alert["interval"])?(int)$alert["interval"]:30;
+                    echo $alert->interval;
                 ?>" size="10" />
                 <?php if (isset($errors["interval"])) : ?>
                 <p class="error"><?php echo $errors["interval"]; ?></p>
                 <?php endif; ?>
+            </dd>
+            <dt>
+                <label>Filtre sur le prix</label>
+            <dt>
+            <dd>
+                <label for="price_min">
+                    Prix min :
+                    <input type="text" id="price_min" name="price_min" value="<?php
+                        echo $alert->price_min != -1?(int)$alert->price_min:"";
+                    ?>" size="6" />
+                </label>
+                <label for="price_max">
+                    Prix max :
+                    <input type="text" id="price_max" name="price_max" value="<?php
+                        echo $alert->price_max != -1?(int)$alert->price_max:"";
+                    ?>" size="6" />
+                </label>
+                <?php if (isset($errors["price"])) : ?>
+                <p class="error"><?php echo $errors["price"]; ?></p>
+                <?php endif; ?>
+            </dd>
+            <dt><label for="cities">Filtre sur les villes (une par ligne)</label></dt>
+            <dd>
+                <textarea id="cities" name="cities" cols="30" rows="10"><?php
+                    echo htmlspecialchars($alert->cities) ?></textarea>
             </dd>
             <dt>&nbsp;</dt>
             <dd><input type="submit" value="Enregistrer" /></dd>

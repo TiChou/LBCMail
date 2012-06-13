@@ -8,6 +8,9 @@ class Alert {
     public $interval = 30;
     public $time_last_ad = 0;
     public $time_updated = 0;
+    public $price_min = -1;
+    public $price_max = -1;
+    public $cities;
 
     public function fromArray(array $values)
     {
@@ -25,13 +28,18 @@ class Alert {
             "url" => $this->url,
             "interval" => $this->interval,
             "time_last_ad" => $this->time_last_ad,
-            "time_updated" => $this->time_updated
+            "time_updated" => $this->time_updated,
+            "price_min" => $this->price_min,
+            "price_max" => $this->price_max,
+            "cities" => $this->cities
         );
     }
 }
 
 class ConfigManager
 {
+    protected static $_config;
+
     public static function getConfigFile()
     {
         return dirname(__FILE__)."/configs/config.csv";
@@ -55,13 +63,14 @@ class ConfigManager
                     $alert->$header[$i] = $a[$i];
                 }
             }
-            $config[] = $alert;
+            $config[$alert->id] = $alert;
         }
         fclose($fp);
+        self::$_config = $config;
         return $config;
     }
 
-    public static function save(array $config)
+    public static function save()
     {
         $filename = self::getConfigFile();
         if (!is_file($filename)) {
@@ -76,13 +85,48 @@ class ConfigManager
             throw new Exception("Permission d'écrire sur le fichier de configuration non autorisée.");
         }
         $fp = fopen($filename, "w");
-        if ($config && is_array($config)) {
-            $keys = array_keys($config[0]->toArray());
+        if (self::$_config && is_array(self::$_config)) {
+            $alerts = array_values(self::$_config);
+            $keys = array_keys($alerts[0]->toArray());
             fputcsv($fp, $keys, ",", '"');
-            foreach ($config AS $alert) {
+            foreach (self::$_config AS $alert) {
                 fputcsv($fp, array_values($alert->toArray()), ",", '"');
             }
         }
         fclose($fp);
+    }
+
+    public static function saveAlert(Alert $alert)
+    {
+        if (empty($alert->id)) {
+            $alert->id = md5(uniqid());
+        }
+        self::$_config[$alert->id] = $alert;
+        self::save();
+    }
+
+    public static function deleteAlert(Alert $alert)
+    {
+        unset(self::$_config[$alert->id]);
+        self::save();
+    }
+
+    public static function getAlerts()
+    {
+        if (!is_array(self::$_config)) {
+            self::load();
+        }
+        return self::$_config;
+    }
+
+    public static function getAlertById($id)
+    {
+        if (!is_array(self::$_config)) {
+            self::load();
+        }
+        if (isset(self::$_config[$id])) {
+            return self::$_config[$id];
+        }
+        return null;
     }
 }

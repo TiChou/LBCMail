@@ -5,12 +5,11 @@ $dirname = dirname(__FILE__);
 require $dirname."/lib/lbc.php";
 require $dirname."/ConfigManager.php";
 
-$config = ConfigManager::load();
-
 if (isset($_GET["key"]) && $_GET["key"] != $key) {
     return;
 }
-if (count($config) == 0) {
+$alerts = ConfigManager::getAlerts();
+if (count($alerts) == 0) {
     return;
 }
 
@@ -24,7 +23,7 @@ function mail_utf8($to, $subject = '(No subject)', $message = '')
     return mail($to, $subject, $message, $headers);
 }
 
-foreach ($config AS $i => $alert) {
+foreach ($alerts AS $i => $alert) {
     $currentTime = time();
     if (!isset($alert->time_updated)) {
         $alert->time_updated = 0;
@@ -34,32 +33,19 @@ foreach ($config AS $i => $alert) {
     }
     $alert->time_updated = $currentTime;
     $content = file_get_contents($alert->url);
-    $ads = Lbc_Parser::process($content);
+    $ads = Lbc_Parser::process($content, array(
+        "price_min" => $alert->price_min,
+        "price_max" => $alert->price_max,
+        "cities" => $alert->cities
+    ));
     if (count($ads) == 0) {
+        ConfigManager::saveAlert($alert);
         continue;
     }
-    $cities = array();
-    if (!empty($alert->cities)) {
-        $cities = explode("\n", $alert->cities);
-    }
     $newAds = array();
-    if (!isset($alert->time_last_ad)) {
-        $alert->time_last_ad = 0;
-    }
     $time_last_ad = (int)$alert->time_last_ad;
     foreach ($ads AS $ad) {
         if ($time_last_ad < $ad->getDate()) {
-            if ($cities && !in_array($ad->getCity(), $cities)) {
-                continue;
-            }
-            if ($ad->getPrice()) {
-                if (!empty($alert->price_min) && $ad->getPrice() < $alert->price_min) {
-                    continue;
-                }
-                if (!empty($alert->price_max) && $ad->getPrice() > $alert->price_max) {
-                    continue;
-                }
-            }
             $newAds[] = require $dirname."/views/mail-ad.phtml";
             if ($alert->time_last_ad < $ad->getDate()) {
                 $alert->time_last_ad = $ad->getDate();
@@ -73,5 +59,5 @@ foreach ($config AS $i => $alert) {
             implode("<br /><hr /><br />", $newAds).'<hr /><br />';
         mail_utf8($alert->email, $subject, $message);
     }
+    ConfigManager::saveAlert($alert);
 }
-ConfigManager::save($config);
