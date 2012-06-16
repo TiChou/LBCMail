@@ -10,6 +10,7 @@ class Alert {
     public $time_updated = 0;
     public $price_min = -1;
     public $price_max = -1;
+    public $price_strict = false;
     public $cities;
 
     public function fromArray(array $values)
@@ -31,6 +32,7 @@ class Alert {
             "time_updated" => $this->time_updated,
             "price_min" => $this->price_min,
             "price_max" => $this->price_max,
+            "price_strict" => $this->price_strict,
             "cities" => $this->cities
         );
     }

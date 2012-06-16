@@ -266,10 +266,12 @@ class Lbc_Parser
 {
     static function process($content, array $filters = array()) {
         $filters = array_merge(array(
-            "price_min" => -1, "price_max" => -1,
+            "price_min" => -1, "price_max" => -1, "price_strict" => false,
             "cities" => ""
         ), $filters);
-        $filters["cities"] = array_map("trim", explode("\n", $filters["cities"]));
+        if (trim($filters["cities"])) {
+            $filters["cities"] = array_map("trim", explode("\n", $filters["cities"]));
+        }
         $timeToday = strtotime(date("Y-m-d")." 23:59:59");
         $dateYesterday = $timeToday - 24*3600;
 
@@ -363,9 +365,12 @@ class Lbc_Parser
                     }
                 }
             }
+            if (!$ad->getPrice() && $filters["price_strict"]) {
+                continue;
+            }
             if ($ad->getPrice()) {
-                if ($ad->getPrice() < $filters["price_min"]
-                    || $ad->getPrice() > $filters["price_max"]) {
+                if ($filters["price_min"] != -1 && $ad->getPrice() < $filters["price_min"]
+                    || $filters["price_max"] != -1 && $ad->getPrice() > $filters["price_max"]) {
                     continue;
                 }
             }
