@@ -36,7 +36,8 @@ foreach ($alerts AS $i => $alert) {
     $ads = Lbc_Parser::process($content, array(
         "price_min" => $alert->price_min,
         "price_max" => $alert->price_max,
-        "cities" => $alert->cities
+        "cities" => $alert->cities,
+        "price_strict" => (bool)$alert->price_strict
     ));
     if (count($ads) == 0) {
         ConfigManager::saveAlert($alert);
