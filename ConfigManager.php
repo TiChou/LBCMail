@@ -74,6 +74,9 @@ class ConfigManager
 
     public static function save()
     {
+        if (!is_array(self::$_config)) {
+            self::load();
+        }
         $filename = self::getConfigFile();
         if (!is_file($filename)) {
             $dir = dirname($filename);
@@ -100,6 +103,9 @@ class ConfigManager
 
     public static function saveAlert(Alert $alert)
     {
+        if (!is_array(self::$_config)) {
+            self::load();
+        }
         if (empty($alert->id)) {
             $alert->id = md5(uniqid());
         }
@@ -109,6 +115,9 @@ class ConfigManager
 
     public static function deleteAlert(Alert $alert)
     {
+        if (!is_array(self::$_config)) {
+            self::load();
+        }
         unset(self::$_config[$alert->id]);
         self::save();
     }
