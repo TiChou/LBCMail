@@ -26,9 +26,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $errors["price"] .= "Valeur de \"prix max\" non valide.";
     }
     if (!empty($_POST["price_strict"])) {
-        $alert->price_max = (int)(bool)$_POST["price_strict"];
+        $alert->price_strict = (int)(bool)$_POST["price_strict"];
     } else {
-        $alert->price_max = false;
+        $alert->price_strict = false;
     }
     try {
         $alert->url = Lbc::formatUrl($alert->url);
