@@ -1,3 +1,8 @@
+
+## Version 1.2.2 - ??/??/2012
+
+ * correction : prix max non pris en compte lors de l'enregistrement d'une alerte.
+
 ## Version 1.2 - 16/06/2012
 
  * ajout : système de filtre sur les prix et sur les villes.
