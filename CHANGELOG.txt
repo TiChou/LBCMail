@@ -1,7 +1,8 @@
 
-## Version 1.2.2 - ??/??/2012
+## Version 1.2.2 - 20/06/2012
 
  * correction : prix max non pris en compte lors de l'enregistrement d'une alerte.
+ * correction : bug critique causant la perte des alertes.
 
 ## Version 1.2 - 16/06/2012
 
