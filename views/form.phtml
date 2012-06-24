@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         $alert->url = Lbc::formatUrl($alert->url);
     } catch (Exception $e) {
-        $errors->url = "Cette adresse ne semble pas valide.";
+        $errors["url"] = "Cette adresse ne semble pas valide.";
     }
     $alert->interval = (int)$alert->interval;
     if ($alert->interval != (int)$alert->interval || $alert->interval < 0) {
