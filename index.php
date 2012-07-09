@@ -9,7 +9,7 @@ ini_set("display_errors", true);
  * Définir à true si vous souhaitez activer l'utilisation
  * multi utilisateur.
  */
-define("MULTI_USER", true);
+define("MULTI_USER", false);
 
 $dirname = dirname(__FILE__);
 
