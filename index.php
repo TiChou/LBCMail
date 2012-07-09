@@ -5,10 +5,23 @@
  */
 ini_set("display_errors", true);
 
+/**
+ * Définir à true si vous souhaitez activer l'utilisation
+ * multi utilisateur.
+ */
+define("MULTI_USER", true);
+
 $dirname = dirname(__FILE__);
 
 require $dirname."/lib/lbc.php";
 require $dirname."/ConfigManager.php";
+
+if (!empty($_SERVER["PHP_AUTH_USER"])) {
+    ConfigManager::setConfigName($_SERVER["PHP_AUTH_USER"]);
+} elseif (MULTI_USER) {
+    echo "Accès non autorisé.";
+    exit;
+}
 
 $view = "list-alerts";
 if (isset($_GET["a"])) {

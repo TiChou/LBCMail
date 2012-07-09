@@ -1,4 +1,8 @@
 
+## Version 1.3 - ??/??/2012
+
+ * ajout : possbilité d'activer le multi utilisateur.
+
 ## Version 1.2.2 - 20/06/2012
 
  * correction : prix max non pris en compte lors de l'enregistrement d'une alerte.

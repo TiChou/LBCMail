@@ -41,10 +41,17 @@ class Alert {
 class ConfigManager
 {
     protected static $_config;
+    protected static $_name = "config";
 
     public static function getConfigFile()
     {
-        return dirname(__FILE__)."/configs/config.csv";
+        return dirname(__FILE__)."/configs/".self::$_name.".csv";
+    }
+
+    public static function setConfigName($name)
+    {
+        self::$_name = $name;
+        self::load();
     }
 
     public static function load()
@@ -78,6 +85,7 @@ class ConfigManager
             self::load();
         }
         $filename = self::getConfigFile();
+        $setChmod = false;
         if (!is_file($filename)) {
             $dir = dirname($filename);
             if ($dir == $filename) {
@@ -86,8 +94,7 @@ class ConfigManager
             if (!is_writable($dir)) {
                 throw new Exception("Permission d'écrire sur le fichier de configuration non autorisée.");
             }
-        } elseif (!is_writable(self::getConfigFile())) {
-            throw new Exception("Permission d'écrire sur le fichier de configuration non autorisée.");
+            $setChmod = true;
         }
         $fp = fopen($filename, "w");
         if (self::$_config && is_array(self::$_config)) {
@@ -99,6 +106,9 @@ class ConfigManager
             }
         }
         fclose($fp);
+        if ($setChmod) {
+            chmod($filename, 0777);
+        }
     }
 
     public static function saveAlert(Alert $alert)
