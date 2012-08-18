@@ -252,11 +252,7 @@ class Lbc
         if (!isset($aUrl["host"]) || $aUrl["host"] != "www.leboncoin.fr") {
             throw new Exception("Url invalide");
         }
-        if (isset($aUrl["query"])) {
-            parse_str($aUrl["query"], $query);
-            unset($query["o"]);
-            $url = str_replace($aUrl["query"], http_build_query($query), $url);
-        }
+        $url = preg_replace("#o=[0-9]*&?#", "", $url);
         return $url;
     }
 }
