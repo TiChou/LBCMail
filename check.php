@@ -62,7 +62,7 @@ foreach ($files AS $file) {
         }
         if ($newAds) {
             $subject = "Alert LeBonCoin : ".$alert->title;
-            $message = '<h2>Alerte générée le '.date("d/m/Y H:i", $currentTime).'</h2>
+            $message = '<h2>Alerte générée le '.date("d/m/Y à H:i", $currentTime).'</h2>
                 <p>Liste des nouvelles annonces :</p><hr /><br />'.
                 implode("<br /><hr /><br />", $newAds).'<hr /><br />';
             mail_utf8($alert->email, $subject, $message);
