@@ -9,14 +9,14 @@ if (isset($_GET["key"]) && isset($config['key']) && $_GET["key"] != $config['key
     return;
 }
 
-function mail_utf8($to, $subject = '(No subject)', $message = '')
+function mail_utf8($to, $subject = '(No subject)', $message = '', $headers = '', $parameters = '')
 {
     $subject = "=?UTF-8?B?".base64_encode($subject)."?=";
 
-    $headers = "MIME-Version: 1.0" . "\r\n" .
-            "Content-type: text/html; charset=UTF-8" . "\r\n";
+    $headers .= "MIME-Version: 1.0\r\n";
+    $headers .= "Content-type: text/html; charset=UTF-8\r\n";
 
-    return mail($to, $subject, $message, $headers);
+    return mail($to, $subject, $message, $headers, $parameters);
 }
 
 $files = scandir(dirname(__FILE__)."/configs");
@@ -61,11 +61,24 @@ foreach ($files AS $file) {
             }
         }
         if ($newAds) {
-            $subject = "Alert LeBonCoin : ".$alert->title;
-            $message = '<h2>Alerte générée le '.date("d/m/Y H:i", $currentTime).'</h2>
-                <p>Liste des nouvelles annonces :</p><hr /><br />'.
-                implode("<br /><hr /><br />", $newAds).'<hr /><br />';
-            mail_utf8($alert->email, $subject, $message);
+            $subject = "Alerte Leboncoin.fr : ".$alert->title;
+            $headers = "";
+            if (isset($config['mail_from']) && !empty($config['mail_from'])) {
+                $headers .= "From: " . $config['mail_from'] . "\r\n";
+            }
+            $message  = '<h2>Alerte générée le '.date("d/m/Y à H:i", $currentTime).'</h2><p>';
+            if (isset($config['site']) && !empty($config['site'])) {
+                $message .= '<a href="' . $config['site'] . '?a=form&amp;id=' . $alert->id . '">modifier</a> | ';
+                $message .= '<a href="' . $config['site'] . '?a=form-delete&amp;id=' . $alert->id . '">supprimer</a> | ';
+            }
+            $message .= '<a href="' . $alert->url . '">lien recherche</a>';
+            $message .= '</p><p>Liste des nouvelles annonces :</p><hr /><br />';
+            $message .= implode("<br /><hr /><br />", $newAds).'<br /><hr /><br />';
+            $parameters = "";
+            if (isset($config['return_path']) && !empty($config['return_path'])) {
+                $parameters .= "-f " . $config['return_path'];
+            }
+            mail_utf8($alert->email, $subject, $message, $headers, $parameters);
         }
         ConfigManager::saveAlert($alert);
     }
