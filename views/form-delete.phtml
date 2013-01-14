@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <p>
             <input type="hidden" name="id" value="<?php echo $_GET["id"]; ?>" />
             <input type="submit" value="Oui" style="font-weight: bold;" />
-            <a href="./">Non</a>
+            <input type="button" value="Non" style="font-weight: bold;" onclick="window.location.href='./';" />
         </p>
     </fieldset>
 </form>
