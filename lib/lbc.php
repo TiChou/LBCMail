@@ -286,7 +286,7 @@ class Lbc_Parser
         );
 
         foreach ($divsAd AS $result) {
-            if (false === strpos($result->getAttribute("class"), "ad-lbc")) {
+            if (false === strpos($result->getAttribute("class"), "lbc")) {
                 continue;
             }
             $ad = new Lbc_Ad();
