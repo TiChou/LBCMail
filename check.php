@@ -1,11 +1,11 @@
 <?php
-$key = "";
-
 $dirname = dirname(__FILE__);
 require $dirname."/lib/lbc.php";
 require $dirname."/ConfigManager.php";
 
-if (isset($_GET["key"]) && $_GET["key"] != $key) {
+$config = ConfigManager::loadConfigIni();
+
+if (isset($_GET["key"]) && isset($config['key']) && $_GET["key"] != $config['key']) {
     return;
 }
 
@@ -62,7 +62,7 @@ foreach ($files AS $file) {
         }
         if ($newAds) {
             $subject = "Alert LeBonCoin : ".$alert->title;
-            $message = '<h2>Alerte générée le '.date("d/m/Y à H:i", $currentTime).'</h2>
+            $message = '<h2>Alerte générée le '.date("d/m/Y H:i", $currentTime).'</h2>
                 <p>Liste des nouvelles annonces :</p><hr /><br />'.
                 implode("<br /><hr /><br />", $newAds).'<hr /><br />';
             mail_utf8($alert->email, $subject, $message);

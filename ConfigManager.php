@@ -42,7 +42,8 @@ class ConfigManager
 {
     protected static $_config;
     protected static $_name = "config";
-
+    protected static $_configIni = "config.ini";
+    
     public static function getConfigFile()
     {
         return dirname(__FILE__)."/configs/".self::$_name.".csv";
@@ -149,5 +150,13 @@ class ConfigManager
             return self::$_config[$id];
         }
         return null;
+    }
+
+    public static function loadConfigIni()
+    {
+        $dirname = dirname(__FILE__);
+        $ini_array = parse_ini_file(dirname(__FILE__)."/configs/".self::$_configIni);
+        if (!is_array($ini_array)) $ini_array = array();
+        return $ini_array;
     }
 }
