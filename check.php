@@ -39,6 +39,7 @@ foreach ($files AS $file) {
         }
         $alert->time_updated = $currentTime;
         $content = file_get_contents($alert->url);
+        $content = mb_convert_encoding($content, "ISO-8859-15", "WINDOWS-1252");
         $ads = Lbc_Parser::process($content, array(
             "price_min" => $alert->price_min,
             "price_max" => $alert->price_max,
